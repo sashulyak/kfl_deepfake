@@ -1,0 +1,38 @@
+Epoch 1/100
+2020-01-30 02:26:09.003908: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcublas.so.10
+2020-01-30 02:26:10.338375: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcudnn.so.7
+4683/4684 [============================>.] - ETA: 0s - loss: 0.4166 - accuracy: 0.8393
+4684/4684 [==============================] - 1621s 346ms/step - loss: 0.4165 - accuracy: 0.8393 - val_loss: 0.4727 - val_accuracy: 0.7884
+Epoch 2/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.3406 - accuracy: 0.8605
+4684/4684 [==============================] - 1464s 312ms/step - loss: 0.3406 - accuracy: 0.8605 - val_loss: 0.4348 - val_accuracy: 0.7944
+Epoch 3/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.2669 - accuracy: 0.8911
+4684/4684 [==============================] - 1431s 306ms/step - loss: 0.2669 - accuracy: 0.8911 - val_loss: 0.5815 - val_accuracy: 0.8317
+Epoch 4/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.2125 - accuracy: 0.9150
+4684/4684 [==============================] - 1459s 311ms/step - loss: 0.2124 - accuracy: 0.9150 - val_loss: 0.5264 - val_accuracy: 0.8468
+Epoch 5/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.1719 - accuracy: 0.9315
+4684/4684 [==============================] - 1469s 314ms/step - loss: 0.1719 - accuracy: 0.9315 - val_loss: 0.4782 - val_accuracy: 0.8581
+Epoch 6/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.1413 - accuracy: 0.9440
+4684/4684 [==============================] - 1505s 321ms/step - loss: 0.1412 - accuracy: 0.9440 - val_loss: 0.4378 - val_accuracy: 0.8635
+Epoch 7/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.1169 - accuracy: 0.9538
+4684/4684 [==============================] - 1479s 316ms/step - loss: 0.1169 - accuracy: 0.9538 - val_loss: 0.9572 - val_accuracy: 0.8427
+Epoch 8/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.0976 - accuracy: 0.9617
+4684/4684 [==============================] - 1471s 314ms/step - loss: 0.0976 - accuracy: 0.9617 - val_loss: 0.7360 - val_accuracy: 0.8468
+Epoch 9/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.0832 - accuracy: 0.9673
+4684/4684 [==============================] - 1473s 314ms/step - loss: 0.0831 - accuracy: 0.9673 - val_loss: 0.5514 - val_accuracy: 0.8564
+Epoch 10/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.0715 - accuracy: 0.9722
+4684/4684 [==============================] - 1495s 319ms/step - loss: 0.0715 - accuracy: 0.9722 - val_loss: 0.5981 - val_accuracy: 0.8546
+Epoch 11/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.0625 - accuracy: 0.9756
+4684/4684 [==============================] - 1480s 316ms/step - loss: 0.0625 - accuracy: 0.9756 - val_loss: 0.5844 - val_accuracy: 0.8498
+Epoch 12/100
+4683/4684 [============================>.] - ETA: 0s - loss: 0.0551 - accuracy: 0.9789
+4684/4684 [==============================] - 1448s 309ms/step - loss: 0.0551 - accuracy: 0.9789 - val_loss: 0.8462 - val_accuracy: 0.8659
