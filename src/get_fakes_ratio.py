@@ -4,12 +4,7 @@ import json
 import numpy as np
 from sklearn.metrics import log_loss
 
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-FACES_TRAIN_METADATA_PATH = os.path.join(BASE_DIR, 'data/train_faces_metadata.json')
-FACES_VAL_METADATA_PATH = os.path.join(BASE_DIR, 'data/val_faces_metadata.json')
-TRAIN_FACES_DIR = os.path.join(BASE_DIR, 'data/train_faces')
-TRAIN_VIDEOS_DIR = os.path.join(BASE_DIR, 'data/train_videos')
+import config
 
 
 def get_labels(metadata_path, train_faces_dir):
@@ -27,8 +22,8 @@ def get_labels(metadata_path, train_faces_dir):
     return np.array(labels)
 
 
-train_labels = get_labels(FACES_TRAIN_METADATA_PATH, TRAIN_FACES_DIR)
-val_labels = get_labels(FACES_VAL_METADATA_PATH, TRAIN_FACES_DIR)
+train_labels = get_labels(config.FACES_TRAIN_METADATA_PATH, config.TRAIN_FACES_DIR)
+val_labels = get_labels(config.FACES_VAL_METADATA_PATH, config.TRAIN_FACES_DIR)
 
 all_labels = np.concatenate((train_labels, val_labels))
 
@@ -53,11 +48,11 @@ All fake ratio: 0.8347193771116124 All fake ratio loss: 0.4663349316208407
 
 
 def get_train_data_lists():
-    chunks_list = os.listdir(TRAIN_VIDEOS_DIR)
+    chunks_list = os.listdir(config.TRAIN_VIDEOS_DIR)
     labels = []
 
     for chunk_dir_name in chunks_list:
-        chunk_dir = os.path.join(TRAIN_VIDEOS_DIR, chunk_dir_name)
+        chunk_dir = os.path.join(config.TRAIN_VIDEOS_DIR, chunk_dir_name)
         chunk_file_names = os.listdir(chunk_dir)
         chunk_file_names = [name for name in chunk_file_names if name != 'metadata.json']
 

@@ -3,22 +3,7 @@ import json
 
 import tensorflow as tf
 
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-TEST_VIDEOS_DIR = os.path.join(BASE_DIR, 'data/test_videos')
-TRAIN_VIDEOS_DIR = os.path.join(BASE_DIR, 'data/train_videos')
-SAMPLE_SUBMISSION_FILE = os.path.join(BASE_DIR, 'data/sample_submission.csv')
-TRAIN_FACES_DIR = os.path.join(BASE_DIR, 'data/train_faces')
-FACES_TRAIN_METADATA_PATH = os.path.join(BASE_DIR, 'data/train_faces_metadata.json')
-FACES_VAL_METADATA_PATH = os.path.join(BASE_DIR, 'data/val_faces_metadata.json')
-BACKBONE_WEIGHTS_PATH = os.path.join(BASE_DIR, 'models/rcmalli_vggface_tf_notop_resnet50.h5')
-MODEL_PATH = os.path.join(BASE_DIR, 'models/deepfake_model.h5')
-LOG_PATH = os.path.join(BASE_DIR, 'train_log.csv')
-EPOCHS = 100
-SEED = 42
-FRAMES_PER_VIDEO = 3
-IMG_SIZE = 200
-BATCH_SIZE = 64
+import config
 
 
 def decode_img(img):
@@ -27,7 +12,7 @@ def decode_img(img):
     # Use `convert_image_dtype` to convert to floats in the [0,1] range.
     img = tf.image.convert_image_dtype(img, tf.float32)
     # resize the image to the desired size.
-    return tf.image.resize(img, [IMG_SIZE, IMG_SIZE])
+    return tf.image.resize(img, [config.IMG_SIZE, config.IMG_SIZE])
 
 
 def read_image(file_path, label):
@@ -47,7 +32,7 @@ def get_dataset(metadata_path, train_faces_dir):
     labels = []
     face_paths = []
     for face_file_name in face_file_names:
-        labels.append(metadata[face_file_name]['label'])
+        labels.append(int(metadata[face_file_name]['label']))
         face_paths.append(os.path.join(train_faces_dir, face_file_name))
 
     paths_tensor = tf.constant(face_paths)
@@ -56,7 +41,7 @@ def get_dataset(metadata_path, train_faces_dir):
     dataset = dataset.map(read_image, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     # dataset = dataset.shuffle(buffer_size=len(face_paths), seed=SEED)
     # dataset = dataset.repeat()
-    dataset = dataset.batch(BATCH_SIZE)
+    dataset = dataset.batch(config.BATCH_SIZE)
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     return dataset
 
@@ -167,28 +152,33 @@ def RESNET50(input_shape=None, pooling=None):
 
     model = tf.keras.models.Model(inputs, x, name='vggface_resnet50')
 
-    model.load_weights(BACKBONE_WEIGHTS_PATH)
+    model.load_weights(config.BACKBONE_WEIGHTS_PATH)
 
     return model
 
 
 if __name__ == '__main__':
-    vggface = RESNET50(input_shape=(IMG_SIZE, IMG_SIZE, 3), pooling='max')
+    vggface = RESNET50(input_shape=(config.IMG_SIZE, config.IMG_SIZE, 3), pooling='max')
     vggface_out = vggface.get_layer('avg_pool').output
     flatten = tf.keras.layers.Flatten(name='flatten')(vggface_out)
     out = tf.keras.layers.Dense(1, activation='sigmoid')(flatten)
     model = tf.keras.models.Model(vggface.input, out)
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    train_dataset = get_dataset(FACES_TRAIN_METADATA_PATH, TRAIN_FACES_DIR)
-    val_dataset = get_dataset(FACES_VAL_METADATA_PATH, TRAIN_FACES_DIR)
+    train_dataset = get_dataset(config.FACES_TRAIN_METADATA_PATH, config.TRAIN_FACES_DIR)
+    val_dataset = get_dataset(config.FACES_VAL_METADATA_PATH, config.TRAIN_FACES_DIR)
 
     model.fit(
         x=train_dataset,
         validation_data=val_dataset,
         callbacks=[
-            tf.keras.callbacks.ModelCheckpoint(MODEL_PATH, verbose=1, save_best_only=True),
-            tf.keras.callbacks.CSVLogger(LOG_PATH, append=True, separator=';'),
+            tf.keras.callbacks.ModelCheckpoint(config.MODEL_PATH, verbose=1, save_best_only=True),
+            tf.keras.callbacks.CSVLogger(config.LOG_PATH, append=True, separator=';'),
             tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, mode='auto', restore_best_weights=True)
         ],
-        epochs=EPOCHS)
+        class_weight={
+            0: config.TRAIN_FAKE_RATIO,
+            1: 1. - config.TRAIN_FAKE_RATIO
+        },
+        epochs=config.POCHS
+    )
