@@ -7,7 +7,7 @@ import tensorflow as tf
 from sklearn.metrics import log_loss
 
 import config
-from utils import read_faces_from_video, get_corrupted_file_indexes
+from utils import read_faces_from_video
 
 
 def get_video_names(metadata_path, train_faces_dir):
@@ -44,6 +44,7 @@ class FacesDataGenerator(tf.keras.utils.Sequence):
         self.video_file_names = video_file_names
         self.videos_directory = videos_directory
         self.video_groups = video_groups
+        self.broken_files = []
 
     def __len__(self) -> int:
         return int(np.ceil(len(self.video_file_names) / self.batch_size))
@@ -60,7 +61,11 @@ class FacesDataGenerator(tf.keras.utils.Sequence):
             else:
                 video_path = os.path.join(self.videos_directory, filename)
 
-            video_frames = read_faces_from_video(video_path, img_size=config.IMG_SIZE)
+            try:
+                video_frames = read_faces_from_video(video_path, img_size=config.IMG_SIZE)
+            except Exception:
+                self.broken_files.append(filename)
+                video_frames = np.zeros(shape=(self.frames_per_movie, config.IMG_SIZE, config.IMG_SIZE, 3), dtype=np.uint8)
 
             if len(video_frames) < self.frames_per_movie:
                 for i in range(self.frames_per_movie - len(video_frames)):
@@ -74,24 +79,17 @@ class FacesDataGenerator(tf.keras.utils.Sequence):
 if __name__ == '__main__':
     video_file_names, labels, groups = get_video_names(config.FACES_VAL_METADATA_PATH, config.TRAIN_FACES_DIR)
 
-    corrupted_file_indexes = get_corrupted_file_indexes(
-        video_file_names,
-        config.TRAIN_VIDEOS_DIR,
-        video_groups=groups,
-        verbose=True)
-
-    good_file_names = video_file_names[np.invert(corrupted_file_indexes)]
-    good_groups = groups[np.invert(corrupted_file_indexes)]
-
     data_generator = FacesDataGenerator(
-        video_file_names=good_file_names,
-        video_groups=good_groups,
+        video_file_names=video_file_names,
+        video_groups=groups,
         videos_directory=config.TRAIN_VIDEOS_DIR,
         batch_size=config.BATCH_SIZE,
         frames_per_movie=config.FRAMES_PER_VIDEO,
         image_size=config.IMG_SIZE)
 
     model = tf.keras.models.load_model(config.MODEL_PATH)
+    model.run_eagerly = False
+
     predictions = model.predict(
         data_generator,
         verbose=1,
@@ -99,15 +97,14 @@ if __name__ == '__main__':
         use_multiprocessing=True,
         max_queue_size=30)
 
-    predictions_grouped = np.reshape(predictions, (len(good_file_names), config.FRAMES_PER_VIDEO))
+    predictions_grouped = np.reshape(predictions, (len(video_file_names), config.FRAMES_PER_VIDEO))
     predictions_mean = np.mean(predictions_grouped, axis=1)
 
-    all_predictions = np.empty(shape=(len(video_file_names)), dtype=float)
-    all_predictions[np.invert(corrupted_file_indexes)] = predictions_mean
-    all_predictions[corrupted_file_indexes] = 0.5
-    all_predictions = np.clip(all_predictions, 0.1, 0.9)
+    broken_file_indexes = np.isin(video_file_names, data_generator.broken_files)
+    predictions_mean[broken_file_indexes] = 0.5
+    predictions_mean = np.clip(predictions_mean, 0.1, 0.9)
 
-    val_loss = log_loss(labels, all_predictions)
+    val_loss = log_loss(labels, predictions_mean)
     print('Validation loss:', val_loss)
 
-    # Validation loss: 0.5644014298127646
+    # Validation loss: 0.5522184162169289

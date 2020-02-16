@@ -8,7 +8,7 @@ TRAIN_FACES_DIR = os.path.join(BASE_DIR, 'data/train_faces')
 FACES_TRAIN_METADATA_PATH = os.path.join(BASE_DIR, 'data/train_faces_metadata.json')
 FACES_VAL_METADATA_PATH = os.path.join(BASE_DIR, 'data/val_faces_metadata.json')
 SEED = 42
-FRAMES_PER_VIDEO = 3
+FRAMES_PER_VIDEO = 6
 
 BACKBONE_WEIGHTS_PATH = os.path.join(BASE_DIR, 'models/rcmalli_vggface_tf_notop_resnet50.h5')
 MODEL_PATH = os.path.join(BASE_DIR, 'models/deepfake_model.h5')

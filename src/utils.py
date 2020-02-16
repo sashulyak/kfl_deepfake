@@ -1,11 +1,8 @@
-import os
-from multiprocessing import Pool
 from typing import List
 
 import cv2
 import cvlib as cv
 import numpy as np
-from tqdm import tqdm
 
 import config
 
@@ -60,29 +57,3 @@ def read_faces_from_video(path: str, img_size=None, swap_channels=True) -> List[
     capture.release()
     assert len(faces_to_save) > 0
     return faces_to_save
-
-
-def is_file_corrupted(file_path):
-    try:
-        read_faces_from_video(file_path)
-        return False
-    except Exception:
-        return True
-
-
-def get_corrupted_file_indexes(video_file_names, videos_directory, video_groups=None, verbose=False):
-    if video_groups is not None:
-        group_paths = [os.path.join(videos_directory, group) for group in video_groups]
-        video_file_paths = []
-        for group_path, filename in zip(group_paths, video_file_names):
-            video_file_paths.append(os.path.join(group_path, filename))
-    else:
-        video_file_paths = [os.path.join(videos_directory, filename) for filename in video_file_names]
-
-    if verbose:
-        corrupted_files_indexes = list(tqdm(
-            Pool().imap(is_file_corrupted, video_file_paths),
-            total=len(video_file_paths)))
-    else:
-        corrupted_files_indexes = Pool().map(is_file_corrupted, video_file_paths)
-    return np.array(corrupted_files_indexes)
