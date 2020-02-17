@@ -102,9 +102,8 @@ if __name__ == '__main__':
 
     broken_file_indexes = np.isin(video_file_names, data_generator.broken_files)
     predictions_mean[broken_file_indexes] = 0.5
-    predictions_mean = np.clip(predictions_mean, 0.1, 0.9)
 
-    val_loss = log_loss(labels, predictions_mean)
+    val_loss = log_loss(labels.astype(float), predictions_mean.astype(float))
     print('Validation loss:', val_loss)
 
-    # Validation loss: 0.5522184162169289
+    # Validation loss: 0.5442721299660042
