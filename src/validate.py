@@ -110,4 +110,4 @@ if __name__ == '__main__':
     val_loss = log_loss(labels.astype(float), predictions_mean.astype(float))
     print('Validation loss:', val_loss)
 
-    # Validation loss: 0.27134945810244165
+    # Validation loss: 0.26070972728107983
