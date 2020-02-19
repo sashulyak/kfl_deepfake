@@ -9,7 +9,7 @@ import config
 def decode_img(img):
     img = tf.image.decode_png(img, channels=3)
     img = tf.image.resize(img, [config.IMG_SIZE, config.IMG_SIZE])
-    return tf.keras.applications.xception.preprocess_input(img)
+    return tf.keras.applications.inception_resnet_v2.preprocess_input(img)
 
 
 def read_image(file_path, label):
@@ -45,14 +45,14 @@ if __name__ == '__main__':
 
     strategy = tf.distribute.MirroredStrategy()
     with strategy.scope():
-        xception = tf.keras.applications.xception.Xception(
+        inception_resnet_v2 = tf.keras.applications.inception_resnet_v2.InceptionResNetV2(
             include_top=False, weights='imagenet',
             input_shape=(config.IMG_SIZE, config.IMG_SIZE, 3),
             pooling='max')
-        xception_out = xception.get_layer('global_max_pooling2d').output
+        inception_resnet_v2_out = inception_resnet_v2.get_layer('global_max_pooling2d').output
 
-        out = tf.keras.layers.Dense(1, activation='sigmoid')(xception_out)
-        model = tf.keras.models.Model(xception.input, out)
+        out = tf.keras.layers.Dense(1, activation='sigmoid')(inception_resnet_v2_out)
+        model = tf.keras.models.Model(inception_resnet_v2.input, out)
         model.compile(optimizer='adam', loss='binary_crossentropy')
 
     train_dataset = get_dataset(config.FACES_TRAIN_METADATA_PATH, config.TRAIN_FACES_DIR)

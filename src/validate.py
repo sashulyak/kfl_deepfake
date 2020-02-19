@@ -73,7 +73,7 @@ class FacesDataGenerator(tf.keras.utils.Sequence):
                 for i in range(self.frames_per_movie - len(video_frames)):
                     video_frames.append(video_frames[-1])
             x.extend(video_frames)
-        x = [tf.keras.applications.xception.preprocess_input(img) for img in x]
+        x = [tf.keras.applications.inception_resnet_v2.preprocess_input(img) for img in x]
         x = np.array(x)
 
         return x
@@ -110,4 +110,4 @@ if __name__ == '__main__':
     val_loss = log_loss(labels.astype(float), predictions_mean.astype(float))
     print('Validation loss:', val_loss)
 
-    # Validation loss: 0.27134945810244165
+    # Validation loss: 0.25184872022860494
