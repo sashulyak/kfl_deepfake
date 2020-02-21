@@ -72,8 +72,9 @@ class FacesDataGenerator(tf.keras.utils.Sequence):
             if len(video_frames) < self.frames_per_movie:
                 for i in range(self.frames_per_movie - len(video_frames)):
                     video_frames.append(video_frames[-1])
-            x.extend(video_frames)
-        x = [tf.keras.applications.xception.preprocess_input(img) for img in x]
+            video_frames = [tf.keras.applications.xception.preprocess_input(img) for img in video_frames]
+            x.append(video_frames)
+
         x = np.array(x)
 
         return x
@@ -100,14 +101,14 @@ if __name__ == '__main__':
         use_multiprocessing=True,
         max_queue_size=30)
 
-    predictions_grouped = np.reshape(predictions, (len(video_file_names), config.FRAMES_PER_VIDEO))
-    predictions_mean = np.mean(predictions_grouped, axis=1)
-
     broken_file_indexes = np.isin(video_file_names, data_generator.broken_files)
-    predictions_mean[broken_file_indexes] = 0.5
-    predictions_mean = np.clip(predictions_mean, 0.1, 0.9)
+    predictions[broken_file_indexes] = 0.5
+    predictions_clipped = np.clip(predictions, 0.1, 0.9)
 
-    val_loss = log_loss(labels.astype(float), predictions_mean.astype(float))
+    val_loss = log_loss(labels.astype(float), predictions.astype(float))
+    val_loss_clipped = log_loss(labels.astype(float), predictions_clipped.astype(float))
     print('Validation loss:', val_loss)
+    print('Validation loss clipped:', val_loss_clipped)
 
-    # Validation loss: 0.27134945810244165
+    # Validation loss: 0.3339077491021287
+    # Validation loss clipped: 0.3575775235238374
