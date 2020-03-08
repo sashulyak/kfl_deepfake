@@ -41,9 +41,9 @@ print('Val fake ratio: {} Val fake ratio loss: {}'.format(val_fake_ratio, val_fa
 print('All fake ratio: {} All fake ratio loss: {}'.format(all_fake_ratio, all_fake_ratio_loss))
 
 '''
-Train fake ratio: 0.8354250485398026 Train fake ratio loss: 0.46639372607873797
-Val fake ratio: 0.8235974551764026 Val fake ratio loss: 0.46589442389423547
-All fake ratio: 0.8347193771116124 All fake ratio loss: 0.4663349316208407
+Train fake ratio: 0.8293777073724644 Train fake ratio loss: 0.4668777079910673
+Val fake ratio: 0.8230496060370658 Val fake ratio loss: 0.46673757983381214
+All fake ratio: 0.8281013933187846 All fake ratio loss: 0.4668265350830934
 '''
 
 
@@ -71,4 +71,4 @@ fake_ratio = np.sum(labels) / labels.shape[0]
 fake_ratio_loss = log_loss(val_labels, np.ones_like(val_labels) * fake_ratio)
 print('Fake ratio: {} Train fake ratio loss: {}'.format(fake_ratio, fake_ratio_loss))
 
-'''Fake ratio: 0.839239252681584 Train fake ratio loss: 0.46677852168737616'''
+'''Fake ratio: 0.839239252681584 Train fake ratio loss: 0.4676838854574761'''

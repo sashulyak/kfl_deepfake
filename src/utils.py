@@ -55,5 +55,5 @@ def read_faces_from_video(path: str, img_size=None, swap_channels=True) -> List[
             if len(faces_to_save) == config.FRAMES_PER_VIDEO:
                 break
     capture.release()
-    assert len(faces_to_save) > 0
+    assert len(faces_to_save) == config.FRAMES_PER_VIDEO
     return faces_to_save
