@@ -1,15 +1,31 @@
 import os
 import json
-from multiprocessing import Pool
+from multiprocessing import Pool, set_start_method
 from typing import List, Tuple, Union
 
 import cv2
 import numpy as np
+import torch
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
+from facenet_pytorch import MTCNN
 
 import config
 from utils import read_faces_from_video
+
+
+try:
+    set_start_method('spawn')
+except RuntimeError:
+    pass
+
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+detector = MTCNN(
+    margin=14,
+    factor=0.6,
+    keep_all=True,
+    device=device)
 
 
 def get_train_data_lists() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -67,7 +83,7 @@ def save_faces_from_video(video_path: str) -> Union[None, Tuple]:
         return face_paths, video_path, group
 
     try:
-        faces_to_save = read_faces_from_video(video_path, swap_channels=False)
+        faces_to_save = read_faces_from_video(video_path, detector, swap_channels=False)
     except Exception:
         return video_path
 
@@ -83,11 +99,10 @@ def extract_faces_from_videos_parallel(paths: List[str]) -> np.array:
     os.makedirs(config.TRAIN_FACES_DIR, exist_ok=True)
     faces_metadata = []
     broken_videos = []
-    with Pool(20) as p:
+
+    with Pool(9) as p:
         with tqdm(total=len(paths)) as pbar:
             for i, saving_result in enumerate(p.imap_unordered(save_faces_from_video, paths)):
-                # print('saving_result:', saving_result)
-                # print('type(saving_result):', type(saving_result))
                 if type(saving_result) is tuple:
                     faces_metadata.append({
                         'faces': saving_result[0],

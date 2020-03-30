@@ -1,8 +1,8 @@
 from typing import List
 
 import cv2
-import cvlib as cv
 import numpy as np
+from facenet_pytorch import MTCNN
 
 import config
 
@@ -26,7 +26,7 @@ def extend_rect_to_square(start_x, start_y, end_x, end_y, image_width, image_hei
     return start_x_result, start_y_result, end_x_result, end_y_result
 
 
-def read_faces_from_video(path: str, img_size=None, swap_channels=True) -> List[str]:
+def read_faces_from_video(path: str, detector: MTCNN, img_size=None, swap_channels=True) -> List[str]:
     capture = cv2.VideoCapture(path)
     num_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
     faces_to_save = []
@@ -34,10 +34,13 @@ def read_faces_from_video(path: str, img_size=None, swap_channels=True) -> List[
         ret = capture.grab()
         if i % 10 == 0:
             ret, frame = capture.retrieve()
-            faces, confidences = cv.detect_face(frame)
+            faces_groups, confidences_groups = detector.detect([cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)])
+            faces = faces_groups[0]
+            confidences = confidences_groups[0]
             if len(confidences) > 0:
                 most_confident_face_index = np.argmax(confidences)
                 (start_x, start_y, end_x, end_y) = faces[most_confident_face_index]
+                (start_x, start_y, end_x, end_y) = (int(start_x), int(start_y), int(end_x), int(end_y))
                 (start_x, start_y, end_x, end_y) = extend_rect_to_square(
                     start_x,
                     start_y,
@@ -54,6 +57,7 @@ def read_faces_from_video(path: str, img_size=None, swap_channels=True) -> List[
                     faces_to_save.append(face_crop)
             if len(faces_to_save) == config.FRAMES_PER_VIDEO:
                 break
+
     capture.release()
     assert len(faces_to_save) == config.FRAMES_PER_VIDEO
     return faces_to_save

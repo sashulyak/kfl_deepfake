@@ -4,10 +4,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 TEST_VIDEOS_DIR = os.path.join(BASE_DIR, 'data/test_videos')
 TRAIN_VIDEOS_DIR = os.path.join(BASE_DIR, 'data/train_videos')
 SAMPLE_SUBMISSION_FILE = os.path.join(BASE_DIR, 'data/sample_submission.csv')
-TRAIN_FACES_DIR = os.path.join(BASE_DIR, 'data/train_faces_17')
-FACES_TRAIN_METADATA_PATH = os.path.join(BASE_DIR, 'data/train_faces_17_metadata.json')
-FACES_VAL_METADATA_PATH = os.path.join(BASE_DIR, 'data/val_faces_17_metadata.json')
-BROKEN_VIDEOS_PATH = os.path.join(BASE_DIR, 'data/broken_videos_17.json')
+TRAIN_FACES_DIR = os.path.join(BASE_DIR, 'data/train_faces_mtcnn')
+FACES_TRAIN_METADATA_PATH = os.path.join(BASE_DIR, 'data/train_faces_mtcnn_metadata.json')
+FACES_VAL_METADATA_PATH = os.path.join(BASE_DIR, 'data/val_faces_mtcnn_metadata.json')
+BROKEN_VIDEOS_PATH = os.path.join(BASE_DIR, 'data/broken_videos_mtcnn.json')
 SEED = 42
 FRAMES_PER_VIDEO = 17
 
