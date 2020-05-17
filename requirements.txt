@@ -1,7 +1,9 @@
-cvlib==0.2.3
 kaggle==1.5.6
 numpy==1.18.1
 opencv-python==4.1.2.30
 scikit-learn==0.22.1
 scipy==1.4.1
 tensorflow==2.1.0
+torch==1.4.0
+torchvision==0.5.0
+facenet-pytorch==2.2.8
