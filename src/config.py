@@ -15,6 +15,6 @@ MODEL_PATH = os.path.join(BASE_DIR, 'models/deepfake_model.h5')
 LOG_PATH = os.path.join(BASE_DIR, 'train_log.csv')
 EPOCHS = 100
 IMG_SIZE = 200
-BATCH_SIZE = 470
+BATCH_SIZE = 16
 VAL_BATCH_SIZE = 16
 TRAIN_FAKE_RATIO = 0.8293777073724644
