@@ -28,15 +28,21 @@ detector = MTCNN(
     device=device)
 
 
-def get_train_data_lists() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    chunks_list = os.listdir(config.TRAIN_VIDEOS_DIR)
+def get_train_data_lists(train_videos_dir: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Collect video paths and labels across all training groups.
+
+    :param train_videos_dir: path to train data directory
+    :return: list of train video paths, video file names, corresponding labels and groups (names of folders)
+    """
+    chunks_list = os.listdir(train_videos_dir)
 
     paths = []
     labels = []
     groups = []
     names = []
     for chunk_dir_name in chunks_list:
-        chunk_dir = os.path.join(config.TRAIN_VIDEOS_DIR, chunk_dir_name)
+        chunk_dir = os.path.join(train_videos_dir, chunk_dir_name)
         chunk_file_names = os.listdir(chunk_dir)
         chunk_file_names = [name for name in chunk_file_names if name != 'metadata.json']
 
@@ -53,7 +59,14 @@ def get_train_data_lists() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     return np.array(paths), np.array(names), np.array(labels), np.array(groups)
 
 
-def get_image_name_from_video_name(video_name, frame_number=None):
+def get_image_name_from_video_name(video_name: str, frame_number: int = None) -> str:
+    """
+    Map video name to corresponding extracted face image file.
+
+    :param video_name: source video file name
+    :param frame_number: frame number from which face was extracted
+    :return: face image file name
+    """
     if frame_number is not None:
         if frame_number > 99:
             template = '_{}.png'
@@ -66,7 +79,14 @@ def get_image_name_from_video_name(video_name, frame_number=None):
         return video_name[:-4] + '.png'
 
 
-def save_faces_from_video(video_path: str) -> Union[None, Tuple]:
+def save_faces_from_video(video_path: str) -> Union[str, Tuple]:
+    """
+    Extract faces from video and save each face to separate image file.
+
+    :param video_path: path to source video
+    :return: in case of success return face images paths, source video path and group (train subfolder name)
+    in case of error return only path to source video
+    """
     video_name = os.path.basename(video_path)
     face_paths = []
     group = video_path.split('/')[-2]
@@ -95,7 +115,13 @@ def save_faces_from_video(video_path: str) -> Union[None, Tuple]:
     return face_paths, video_path, group
 
 
-def extract_faces_from_videos_parallel(paths: List[str]) -> np.array:
+def extract_faces_from_videos_parallel(paths: List[str]) -> np.ndarray:
+    """
+    Take each video from list, detect faces, and save face crops as separate images.
+
+    :param paths: video paths
+    :return: list of metadata dictionaries
+    """
     os.makedirs(config.TRAIN_FACES_DIR, exist_ok=True)
     faces_metadata = []
     broken_videos = []
@@ -121,7 +147,14 @@ def extract_faces_from_videos_parallel(paths: List[str]) -> np.array:
     return np.array(faces_metadata)
 
 
-def save_faces_metadata_to_json(labels, faces, metadata_path) -> None:
+def save_faces_metadata_to_json(labels: np.ndarray, faces: np.ndarray, metadata_path: str) -> None:
+    """
+    Save all faces metadata to one json file.
+
+    :param labels: video labels
+    :param faces: corresponding faces metadata
+    :param metadata_path: path to metadata file
+    """
     faces_metadata = {}
     for label, faces_batch in zip(labels, faces):
         for face_path in faces_batch['faces']:
@@ -137,7 +170,7 @@ def save_faces_metadata_to_json(labels, faces, metadata_path) -> None:
 
 if __name__ == '__main__':
     np.random.seed(config.SEED)
-    video_paths, video_file_names, labels, groups = get_train_data_lists()
+    video_paths, video_file_names, labels, groups = get_train_data_lists(config.TRAIN_VIDEOS_DIR)
 
     video_paths, video_file_names, labels, groups = video_paths, video_file_names, labels, groups
 

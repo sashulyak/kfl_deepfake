@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -7,7 +7,25 @@ from facenet_pytorch import MTCNN
 import config
 
 
-def extend_rect_to_square(start_x, start_y, end_x, end_y, image_width, image_height):
+def extend_rect_to_square(
+    start_x: int,
+    start_y: int,
+    end_x: int,
+    end_y: int,
+    image_width: int,
+    image_height: int
+) -> Tuple[int, int, int, int]:
+    """
+    Extend bounding box rectangle to the nearest square.
+
+    :param start_x: left rectangle coordinate
+    :param start_y: top rectange coordinate
+    :param end_x: righ rectange coordinate
+    :param end_y: bottom rectange coordinate
+    :param image_width: source image width
+    :param image_height: source image height
+    :return: square coordinates
+    """
     width = end_x - start_x
     height = end_y - start_y
     if width > height:
@@ -26,7 +44,16 @@ def extend_rect_to_square(start_x, start_y, end_x, end_y, image_width, image_hei
     return start_x_result, start_y_result, end_x_result, end_y_result
 
 
-def read_faces_from_video(path: str, detector: MTCNN, img_size=None, swap_channels=True) -> List[str]:
+def read_faces_from_video(path: str, detector: MTCNN, img_size=None, swap_channels=True) -> List[np.ndarray]:
+    """
+    Open video file, detect faces in it, crop and return.
+
+    :param path: path to source video
+    :param detector: face detector model
+    :param img_size: face target size
+    :param swap_channels: if True, swap bluee and red channels
+    :return: list of cropped faces
+    """
     capture = cv2.VideoCapture(path)
     num_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
     faces_to_save = []
