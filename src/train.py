@@ -1,24 +1,45 @@
 import os
 import json
+from typing import Tuple
 
 import tensorflow as tf
 
 import config
 
 
-def decode_img(img):
+def decode_img(img: tf.Tensor) -> tf.Tensor:
+    """
+    Decode image, resize it and preprocess.
+
+    :param img: raw image Tensor
+    :return: preprocessed image Tensor
+    """
     img = tf.image.decode_png(img, channels=3)
     img = tf.image.resize(img, [config.IMG_SIZE, config.IMG_SIZE])
     return tf.keras.applications.xception.preprocess_input(img)
 
 
-def read_image(file_path, label):
+def read_image(file_path: tf.Tensor, label: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+    """
+    Read and preprocess image to 3D float Tensor.
+
+    :param file_path: path to face crop file
+    :param label: corresponded label Tensor
+    :return: pair of preprocessed image Tensor and corresponded label Tensor
+    """
     img = tf.io.read_file(file_path)
     img = decode_img(img)
     return img, label
 
 
-def get_dataset(metadata_path, train_faces_dir):
+def get_dataset(metadata_path: str, train_faces_dir: str) -> tf.data.Dataset:
+    """
+    Create Tensorflow dataset consisted of face crop/label pairs.
+
+    :param metadata_path: path to metadata file which stores information about cropped faces
+    :param train_faces_dir: path to directory where face crops are stored
+    :return: Tensorflow dataset
+    """
     with open(metadata_path) as json_file:
         metadata = json.load(json_file)
 
