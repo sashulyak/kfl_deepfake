@@ -1,6 +1,6 @@
 import os
 import json
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 import tensorflow as tf
@@ -10,7 +10,13 @@ import config
 from utils import read_faces_from_video
 
 
-def get_video_names(metadata_path, train_faces_dir):
+def get_video_names(metadata_path: str, train_faces_dir: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Get validation video paths, corresponding labels and groups.
+    :param metadata_path: path to validatoin metadata file
+    :param train_faces_dir: path to videos directory
+    :return: validation video paths, corresponding labels and groups
+    """
     with open(metadata_path) as json_file:
         metadata = json.load(json_file)
 
@@ -30,6 +36,7 @@ def get_video_names(metadata_path, train_faces_dir):
 
 
 class FacesDataGenerator(tf.keras.utils.Sequence):
+    """ Keras data generator that extracts faces from videos."""
     def __init__(
             self,
             video_file_names: List[str],
@@ -38,6 +45,14 @@ class FacesDataGenerator(tf.keras.utils.Sequence):
             batch_size: int = 64,
             frames_per_movie: int = 3,
             image_size: int = 200):
+        """
+        :param video_file_names: list of source video file names
+        :param videos_directory: path to videos directory
+        :param video_groups: corresponding video groups
+        :param batch_size: amount of videos that generator will return in one iteration
+        :param frames_per_movie: how many faces generator extracts from one video
+        :param image_size: target face size
+        """
         self.batch_size = batch_size
         self.frames_per_movie = frames_per_movie
         self.image_size = image_size
