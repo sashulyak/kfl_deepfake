@@ -1,9 +1,10 @@
 from typing import List
 
+import numpy as np
 import nvidia.dali.plugin.tf as dali_tf
 import tensorflow as tf
-from nvidia.dali.pipeline import Pipeline
 import nvidia.dali.ops as ops
+from nvidia.dali.pipeline import Pipeline
 
 import config
 
@@ -46,7 +47,7 @@ class VideoPipeline(Pipeline):
         return output
 
 
-def get_dataset(video_file_paths: List[str], labels: List[int]) -> tf.Dataset:
+def get_dali_dataset(video_file_paths: List[str], labels: List[int]) -> tf.data.Dataset:
     """
     Create Tensorflow dataset with direct video reader.
 
@@ -55,7 +56,7 @@ def get_dataset(video_file_paths: List[str], labels: List[int]) -> tf.Dataset:
     :return: Tensorflow dataset of pairs (video frames, label)
     """
     video_pipeline = VideoPipeline(
-        batch_size=config.BATCH_SIZE,
+        batch_size=1,
         num_threads=2,
         device_id=0,
         sequence_length=config.FRAMES_PER_VIDEO,
@@ -63,19 +64,20 @@ def get_dataset(video_file_paths: List[str], labels: List[int]) -> tf.Dataset:
         data=video_file_paths,
         shuffle=True
     )
-    video_pipeline.build()
+    # video_pipeline.build()
 
-    shapes = [(config.BATCH_SIZE, config.FRAMES_PER_VIDEO, config.IMG_SIZE, config.IMG_SIZE)]
+    shapes = [(1, config.FRAMES_PER_VIDEO, config.IMG_SIZE, config.IMG_SIZE)]
     dtypes = [tf.float32]
 
     features_dataset = dali_tf.DALIDataset(
         pipeline=video_pipeline,
-        batch_size=config.BATCH_SIZE,
+        batch_size=1,
         shapes=shapes,
         dtypes=dtypes,
         device_id=0
     )
 
-    labels_dataset = tf.Dataset.from_tensor_slices(tf.constant(labels))
+    features_dataset = features_dataset.unbatch().unbatch()
+    labels_dataset = tf.Dataset.from_tensor_slices(tf.repeat(labels, repeats=np.ones_like(labels) * config.FRAMES_PER_VIDEO, axis=0))
 
     return tf.Dataset.zip((features_dataset, labels_dataset))
