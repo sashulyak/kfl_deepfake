@@ -1,6 +1,5 @@
 from typing import List
 
-import numpy as np
 import nvidia.dali.plugin.tf as dali_tf
 import tensorflow as tf
 import nvidia.dali.ops as ops
@@ -64,22 +63,17 @@ def get_dali_dataset(video_file_paths: List[str], labels: List[int]) -> tf.data.
         data=video_file_paths,
         shuffle=True
     )
-    # video_pipeline.build()
-
-    shapes = (config.FRAMES_PER_VIDEO, config.IMG_SIZE, config.IMG_SIZE)
-    dtypes = tf.float32
+    video_pipeline.build()
 
     features_dataset = dali_tf.DALIDataset(
         pipeline=video_pipeline,
         batch_size=1,
-        output_shapes=shapes,
-        output_dtypes=dtypes,
+        output_shapes=(config.FRAMES_PER_VIDEO, config.IMG_SIZE, config.IMG_SIZE, 3),
+        output_dtypes=tf.float32,
         device_id=0
     )
 
-    features_dataset_unbatched = features_dataset.unbatch().unbatch()
-    labels_dataset = tf.Dataset.from_tensor_slices(
-        tf.repeat(labels, repeats=np.ones_like(labels) * config.FRAMES_PER_VIDEO, axis=0)
-    )
+    features_dataset_unbatched = features_dataset
+    labels_dataset = tf.data.Dataset.from_tensor_slices(tf.constant(labels))
 
-    return tf.Dataset.zip((features_dataset_unbatched, labels_dataset))
+    return tf.data.Dataset.zip((features_dataset_unbatched, labels_dataset))
