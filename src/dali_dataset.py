@@ -41,8 +41,16 @@ class VideoPipeline(Pipeline):
             initial_fill=initial_prefetch_size
         )
 
+        self.crop = ops.Crop(
+            device="gpu",
+            crop=(config.IMG_SIZE, config.IMG_SIZE),
+            crop_pos_x=0,
+            crop_pos_y=0
+        )
+
     def define_graph(self):
-        output = self.input(name="Reader")
+        frames = self.input(name="Reader")
+        output = self.crop(frames)
         return output
 
 
@@ -63,13 +71,13 @@ def get_dali_dataset(video_file_paths: List[str], labels: List[int]) -> tf.data.
         data=video_file_paths,
         shuffle=True
     )
-    video_pipeline.build()
+    #video_pipeline.build()
 
     features_dataset = dali_tf.DALIDataset(
         pipeline=video_pipeline,
         batch_size=1,
         output_shapes=(config.FRAMES_PER_VIDEO, config.IMG_SIZE, config.IMG_SIZE, 3),
-        output_dtypes=tf.float32,
+        output_dtypes=tf.uint8,
         device_id=0
     )
 
