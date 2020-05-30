@@ -1,7 +1,6 @@
 import os
 
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Input, LSTM, TimeDistributed
 
 import config as config
 from dali_dataset import get_dali_dataset
@@ -35,15 +34,14 @@ def get_dataset() -> tf.data.Dataset:
 
 
 if __name__ == '__main__':
-    video_input = Input((config.FRAMES_PER_VIDEO, config.IMG_SIZE, config.IMG_SIZE, 3))
     xception = tf.keras.applications.xception.Xception(
         include_top=False, weights='imagenet',
         input_shape=(config.IMG_SIZE, config.IMG_SIZE, 3),
         pooling='max')
-    time_distributed = TimeDistributed(xception)(video_input)
-    lstm = LSTM(128, dropout=0.2, recurrent_dropout=0.2)(time_distributed)
-    out = Dense(1, activation='sigmoid')(lstm)
-    model = tf.keras.models.Model(video_input, out)
+    xception_out = xception.get_layer('global_max_pooling2d').output
+
+    out = tf.keras.layers.Dense(1, activation='sigmoid')(xception_out)
+    model = tf.keras.models.Model(xception.input, out)
     model.compile(optimizer='adam', loss='binary_crossentropy')
 
     train_dataset = get_dataset()
