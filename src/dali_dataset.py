@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import nvidia.dali.plugin.tf as dali_tf
 import tensorflow as tf
@@ -43,7 +43,7 @@ class VideoPipeline(Pipeline):
 
         self.extract = ops.ElementExtract(
             device="gpu",
-            element_map=0
+            element_map=list(range(0, config.FRAMES_PER_VIDEO))
         )
 
         self.resize = ops.Resize(
@@ -54,10 +54,37 @@ class VideoPipeline(Pipeline):
 
     def define_graph(self):
         frames = self.input(name="Reader")
-        extracted = self.extract(frames)
-        resized = self.resize(extracted)
+        extracted_frames = self.extract(frames)
+        resized_frames = []
+        for extracted_frame in extracted_frames:
+            resized_frames.append(self.resize(extracted_frame))
 
-        return resized
+        return resized_frames[0], resized_frames[1], resized_frames[2]
+
+
+# def unwrap_frames_sequence(
+#     frames: tf.Tensor,
+#     label: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+#     """
+#     Unwrap sequence into separate frames with labels.
+
+#     :param ...: path to face crop file
+#     :param label: corresponded label Tensor
+#     :return: pair of preprocessed image Tensor and corresponded label Tensor
+#     """
+#     return tf.data.Dataset.from_tensor_slices([frames[0], frames[1], frames[2]]), tf.data.Dataset.from_tensor_slices([label, label, label])
+
+
+def unwrap_frames_sequence(frames: tf.Tensor) -> tf.data.Dataset:
+    """
+    Unwrap sequence into separate frames with labels.
+
+    :param ...: path to face crop file
+    :param label: corresponded label Tensor
+    :return: pair of preprocessed image Tensor and corresponded label Tensor
+    """
+    #return tf.data.Dataset.from_tensor_slices(frames)
+    return tf.stack(frames)
 
 
 def get_dali_dataset(video_file_paths: List[str], labels: List[int]) -> tf.data.Dataset:
@@ -72,7 +99,7 @@ def get_dali_dataset(video_file_paths: List[str], labels: List[int]) -> tf.data.
         batch_size=1,
         num_threads=2,
         device_id=0,
-        sequence_length=1,
+        sequence_length=config.FRAMES_PER_VIDEO,
         initial_prefetch_size=16,
         data=video_file_paths,
         shuffle=True
@@ -86,7 +113,15 @@ def get_dali_dataset(video_file_paths: List[str], labels: List[int]) -> tf.data.
         device_id=0
     )
 
-    features_dataset_unbatched = features_dataset
-    labels_dataset = tf.data.Dataset.from_tensor_slices(tf.constant(labels))
+    features_dataset = features_dataset.map(unwrap_frames_sequence)
 
-    return tf.data.Dataset.zip((features_dataset_unbatched, labels_dataset))
+    labels_tensor = tf.constant(labels)
+    labels_tensor = tf.tile(
+        labels_tensor,
+        tf.constant([config.FRAMES_PER_VIDEO], tf.int32)
+    )
+    labels_dataset = tf.data.Dataset.from_tensor_slices(labels_tensor)
+
+    dataset = tf.data.Dataset.zip((features_dataset, labels_dataset))
+
+    return dataset
