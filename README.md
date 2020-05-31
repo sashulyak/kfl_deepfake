@@ -27,3 +27,6 @@ Train binary classificator based on Xception CNN.
 - Extract 17 faces from each video
 - Predict label [0..1] for each face separately using pretrained model from the previous step
 - Use mean value of 17 predictions to get prediction whether input video is fake or not
+
+TODO:
+- Migrate from Keras.Sequential to Tensorflow.data.Dataset
