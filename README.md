@@ -28,5 +28,7 @@ Train binary classificator based on Xception CNN.
 - Predict label [0..1] for each face separately using pretrained model from the previous step
 - Use mean value of 17 predictions to get prediction whether input video is fake or not
 
-TODO:
+## TODO:
 - Migrate from Keras.Sequential to Tensorflow.data.Dataset
+- Find working Tensorflow implementation of MTCNN and make it work with TF 2.0
+- Clear data preparation and evaluation stages
