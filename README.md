@@ -29,6 +29,6 @@ Train binary classificator based on Xception CNN.
 - Use mean value of 17 predictions to get prediction whether input video is fake or not
 
 ## TODO:
-- Migrate from Keras.Sequential to Tensorflow.data.Dataset
+- Migrate from Keras.Sequential to Tensorflow.data.Dataset (Currently NVIDIA DALI cannot work with TF Distributed Strategies, so we need to wait for the next release).
 - Find working Tensorflow implementation of MTCNN and make it work with TF 2.0
 - Clear data preparation and evaluation stages
