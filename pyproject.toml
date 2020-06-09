@@ -20,6 +20,7 @@ scipy = "^1.4.1"
 tensorflow = "^2.2.0"
 nvidia-dali = "^0.21.0"
 nvidia-dali-tf-plugin = "^0.21.0"
+mtcnn = {git = "https://github.com/sashulyak/mtcnn.git"}
 
 [tool.poetry.dev-dependencies]
 

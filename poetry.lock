@@ -209,6 +209,22 @@ testing = ["coverage", "pyyaml"]
 
 [[package]]
 category = "main"
+description = ""
+name = "mtcnn"
+optional = false
+python-versions = "^3.7"
+version = "0.1.0"
+
+[package.dependencies]
+opencv-python = "^4.2.0"
+tensorflow = "^2.2.0"
+
+[package.source]
+reference = "cc1091cb22d5bba19cdb07a285717af41a5541a0"
+type = "git"
+url = "https://github.com/sashulyak/mtcnn.git"
+[[package]]
+category = "main"
 description = "NumPy is the fundamental package for array computing with Python."
 name = "numpy"
 optional = false
@@ -587,7 +603,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "81b5c9316145ee04a9e1a6d9efc1dda01b3cfe578ed633af336ce2e7e2e85b42"
+content-hash = "75119d3a30620a65392a12a175c4e66a17eeb5203ac3e1fb988e493b1cab3d0d"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -717,6 +733,7 @@ markdown = [
     {file = "Markdown-3.2.2-py3-none-any.whl", hash = "sha256:c467cd6233885534bf0fe96e62e3cf46cfc1605112356c4f9981512b8174de59"},
     {file = "Markdown-3.2.2.tar.gz", hash = "sha256:1fafe3f1ecabfb514a5285fca634a53c1b32a81cb0feb154264d55bf2ff22c17"},
 ]
+mtcnn = []
 numpy = [
     {file = "numpy-1.18.5-cp35-cp35m-macosx_10_9_intel.whl", hash = "sha256:e91d31b34fc7c2c8f756b4e902f901f856ae53a93399368d9a0dc7be17ed2ca0"},
     {file = "numpy-1.18.5-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:7d42ab8cedd175b5ebcb39b5208b25ba104842489ed59fbb29356f671ac93583"},
