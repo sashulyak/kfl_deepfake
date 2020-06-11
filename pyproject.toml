@@ -7,7 +7,7 @@ license = "MIT"
 
 
 [[tool.poetry.source]]
-name = "ivi_cv-local"
+name = "developer.download.nvidia"
 url = "https://developer.download.nvidia.com/compute/redist/cuda/10.0"
 
 
@@ -18,8 +18,7 @@ opencv-python = "^4.2.0"
 scikit-learn = "^0.23.1"
 scipy = "^1.4.1"
 tensorflow = "^2.2.0"
-nvidia-dali = "^0.21.0"
-nvidia-dali-tf-plugin = "^0.21.0"
+nvidia-dali-tf-plugin = "^0.22.0"
 mtcnn = {git = "https://github.com/sashulyak/mtcnn.git"}
 
 [tool.poetry.dev-dependencies]
